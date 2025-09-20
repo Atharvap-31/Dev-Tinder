@@ -1,0 +1,19 @@
+{
+  "name": "devtinder-backend",
+  "version": "1.0.0",
+  "description": "Learning Backend",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/app.js"
+  },
+  "keywords": [
+    "Node.js",
+    "MongoDb",
+    "Express.Js"
+  ],
+  "author": "Atharva Patil",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
