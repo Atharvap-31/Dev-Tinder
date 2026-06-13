@@ -7,7 +7,20 @@ const User = require("./models/users");
 app.use(express.json());
 
 
+// update the user by id
 
+
+app.patch('/user',async (req,res)=>{
+  const userId = req.body._id
+  const data = req.body
+  try {
+    const user = await User.findByIdAndUpdate(userId,data)
+    res.send('user successfully updated')
+  } catch (error) {
+    res.status(400).send('user cannot be updated')
+  }
+
+})
 
 // delete user
 
