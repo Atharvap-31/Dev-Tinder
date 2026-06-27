@@ -14,10 +14,12 @@ app.patch('/user',async (req,res)=>{
   const userId = req.body._id
   const data = req.body
   try {
-    const user = await User.findByIdAndUpdate(userId,data)
+    const user = await User.findByIdAndUpdate(userId,data,{
+      runValidators:true}
+    )
     res.send('user successfully updated')
   } catch (error) {
-    res.status(400).send('user cannot be updated')
+    res.status(400).send('INVALID AGE')
   }
 
 })
