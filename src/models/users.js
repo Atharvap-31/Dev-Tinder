@@ -20,7 +20,9 @@ const userSchema = new Schema({
   password: {
     type: String,
     required:true,
-    unique:true
+    unique:true,
+    minLength:8,
+    maxLength:15
   },
   contactNo: {
     type: Number,
@@ -38,7 +40,8 @@ const userSchema = new Schema({
          throw new Error("invalid gender")
       }
     }
-  }
+  },
+  skills:[String]
 },{
   timestamps:true
 });

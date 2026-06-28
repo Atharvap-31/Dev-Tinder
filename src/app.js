@@ -10,16 +10,29 @@ app.use(express.json());
 // update the user by id
 
 
-app.patch('/user',async (req,res)=>{
-  const userId = req.body._id
+app.patch('/user/:_id',async (req,res)=>{
+  const userId = req.params?._id
   const data = req.body
+  
   try {
+    const ALLOWED_UPDATES = ["age","password","contactNo","skills","gender"]
+
+    const allowedData = Object.keys(data).every((d) => ALLOWED_UPDATES.includes(d))
+    if(!allowedData){
+      throw new Error("Data not allowed to be updated");
+    }
+
+    if(data?.skills?.length > 5){
+      throw new Error('Skills limit exceded')
+    }
+
     const user = await User.findByIdAndUpdate(userId,data,{
+      returnDocument:'after',
       runValidators:true}
     )
     res.send('user successfully updated')
   } catch (error) {
-    res.status(400).send('INVALID AGE')
+    res.status(400).send('updatefailed:'+ error.message)
   }
 
 })
