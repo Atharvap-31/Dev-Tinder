@@ -2,6 +2,9 @@ const express = require("express");
 const app = express();
 const connectDb = require("./config/database");
 const User = require("./models/users");
+const {validateSignUpApi} = require('./utils/validation')
+const bcrypt = require('bcrypt');
+
 
 // middleware for handling json format to js object
 app.use(express.json());
@@ -15,7 +18,7 @@ app.patch('/user/:_id',async (req,res)=>{
   const data = req.body
   
   try {
-    const ALLOWED_UPDATES = ["age","password","contactNo","skills","gender"]
+    const ALLOWED_UPDATES = ["age","password","skills","gender"]
 
     const allowedData = Object.keys(data).every((d) => ALLOWED_UPDATES.includes(d))
     if(!allowedData){
@@ -86,12 +89,18 @@ app.get('/feed',async(req,res)=>{
 })
 
 app.post('/signup',async(req,res) => {
-console.log(req.body);
   
-
-  const user = new User(req.body)
-
   try {
+    // validate the user
+    validateSignUpApi(req)
+
+  const {firstName,lastName,emailId,password} = req.body
+  
+  // encrypt the password
+  const hashPassword = await bcrypt.hash(password,10)
+  console.log(hashPassword);
+  
+  const user = new User({firstName,lastName,emailId, password:hashPassword})
     await user.save()
     res.send('User signedup successfully')
   } catch (error) {
