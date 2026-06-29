@@ -4,11 +4,64 @@ const connectDb = require("./config/database");
 const User = require("./models/users");
 const {validateSignUpApi} = require('./utils/validation')
 const bcrypt = require('bcrypt');
+const validator = require('validator')
 
 
 // middleware for handling json format to js object
 app.use(express.json());
 
+
+app.post('/signup',async(req,res) => {
+  
+  try {
+    // validate the user
+    validateSignUpApi(req)
+
+  const {firstName,lastName,emailId,password} = req.body
+  
+  // encrypt the password
+  const hashPassword = await bcrypt.hash(password,10)
+  console.log(hashPassword);
+  
+  const user = new User({firstName,lastName,emailId, password:hashPassword})
+    await user.save()
+    res.send('User signedup successfully')
+  } catch (error) {
+    res.status(400).send("Error signing up user : " + error.message)
+  }
+})
+
+app.post('/login',async(req,res) => {
+  try {
+   const {emailId,password} = req.body
+    // if email id format is correct or not
+   if(!validator.isEmail(emailId)){
+    throw new Error("Invalid Email id format");
+  }
+
+    // if email id and password are in our db
+    const user = await User.findOne({emailId:emailId})
+    console.log(user);
+    
+    if(!user){
+      throw new Error("INVALID CREDENTIALS");
+      
+    }
+
+    const passwordValid = await bcrypt.compare(password, user.password);
+
+    // if correct login successfull
+    if(passwordValid){
+      res.status(200).send('LOGIN SUCCESSFULL')
+    }else{
+       throw new Error("INVALID CREDENTIALS");
+
+    }
+    
+  } catch (error) {
+    res.status(400).send('ERROR :', + error.message)
+  }
+})
 
 // update the user by id
 
@@ -88,25 +141,7 @@ app.get('/feed',async(req,res)=>{
   }
 })
 
-app.post('/signup',async(req,res) => {
-  
-  try {
-    // validate the user
-    validateSignUpApi(req)
 
-  const {firstName,lastName,emailId,password} = req.body
-  
-  // encrypt the password
-  const hashPassword = await bcrypt.hash(password,10)
-  console.log(hashPassword);
-  
-  const user = new User({firstName,lastName,emailId, password:hashPassword})
-    await user.save()
-    res.send('User signedup successfully')
-  } catch (error) {
-    res.status(400).send("Error signing up user : " + error.message)
-  }
-})
 
 //first connect to the database and then start or listen to the server
 connectDb()
