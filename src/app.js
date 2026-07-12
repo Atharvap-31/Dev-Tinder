@@ -5,13 +5,17 @@ const User = require("./models/users");
 const {validateSignUpApi} = require('./utils/validation')
 const bcrypt = require('bcrypt');
 const validator = require('validator')
-
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
+const { userAuth } = require("./middlewares/auth");
 
 // middleware for handling json format to js object
 app.use(express.json());
-
+app.use(cookieParser());
 
 app.post('/signup',async(req,res) => {
+  console.log('sign up');
+  
   
   try {
     // validate the user
@@ -35,13 +39,13 @@ app.post('/login',async(req,res) => {
   try {
    const {emailId,password} = req.body
     // if email id format is correct or not
+    
    if(!validator.isEmail(emailId)){
     throw new Error("Invalid Email id format");
   }
 
     // if email id and password are in our db
     const user = await User.findOne({emailId:emailId})
-    console.log(user);
     
     if(!user){
       throw new Error("INVALID CREDENTIALS");
@@ -52,6 +56,9 @@ app.post('/login',async(req,res) => {
 
     // if correct login successfull
     if(passwordValid){
+      const token  = jwt.sign({_id:user._id},'Patiltab123',{expiresIn:'1d'})
+      
+      res.cookie('token', token);
       res.status(200).send('LOGIN SUCCESSFULL')
     }else{
        throw new Error("INVALID CREDENTIALS");
@@ -61,6 +68,25 @@ app.post('/login',async(req,res) => {
   } catch (error) {
     res.status(400).send('ERROR :', + error.message)
   }
+})
+
+// get profile of the user
+app.get('/profile',userAuth, async(req,res) =>{
+
+  try {
+  
+
+    const user = req.user
+  
+    res.send(user)
+    
+
+  } catch (error) {
+    res.status(400).send('Invalid Token')
+  }
+  
+
+  res.status(200).send('Cookie send successfully')
 })
 
 // update the user by id
@@ -147,7 +173,7 @@ app.get('/feed',async(req,res)=>{
 connectDb()
   .then(() => {
     console.log("Database connected successfully");
-    app.listen(5000, () => {
+    app.listen(7777, () => {
       console.log("Listening to the port 5000 successfully");
     });
   })
