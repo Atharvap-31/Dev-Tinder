@@ -3,8 +3,8 @@ const { validateSignUpApi } = require("../utils/validation");
 const bcrypt = require('bcrypt');
 const User = require("../models/users");
 const authRouter  = express.Router()
-
 const validator = require('validator')
+
 authRouter.post('/signup',async(req,res) => {
   
   try {
@@ -28,6 +28,8 @@ authRouter.post('/login',async(req,res) => {
   try {
    const {emailId,password} = req.body
     // if email id format is correct or not
+    console.log(emailId,password);
+    
     
    if(!validator.isEmail(emailId)){
     throw new Error("Invalid Email id format");
@@ -42,8 +44,10 @@ authRouter.post('/login',async(req,res) => {
     }
 
     const passwordValid = await user.validatePassword(password)
+    console.log(passwordValid);
+    
 
-    // if correct login successfull
+    // if correct then login successfull
     if(passwordValid){
       const token  = await user.getJwt()
       
@@ -57,6 +61,13 @@ authRouter.post('/login',async(req,res) => {
   } catch (error) {
     res.status(400).send('ERROR :', + error.message)
   }
+})
+
+authRouter.post('/logout',async (req,res) => {
+
+    res.cookie('token', null 
+    ).json({message :'User Logged out successfully'})
+
 })
 
 module.exports = authRouter

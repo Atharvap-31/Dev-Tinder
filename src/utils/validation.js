@@ -19,4 +19,18 @@ const validateSignUpApi = (data) =>{
 
 }
 
-module.exports = {validateSignUpApi}
+const validateProfileEdit = (req) =>{
+    const allowedEditProfiles = ["email", "age", "skills","about","photoUrl"]
+
+    console.log(req.body.skills.length);
+    
+    if(req.body.skills.length > 6){
+        throw new Error("Skills limit exeded");
+    }
+
+    const isEditAllowed = Object.keys(req.body).every((field) => allowedEditProfiles.includes(field));
+
+    return isEditAllowed
+}
+
+module.exports = {validateSignUpApi,validateProfileEdit}

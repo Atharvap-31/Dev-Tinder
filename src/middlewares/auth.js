@@ -16,7 +16,9 @@ const userAuth = async(req,res,next)=>{
 try {
   const {token} = req.cookies
   if(!token) {
-    throw new Error("Token not Found");
+    return res.status(401).json({
+        message: "Please log in."
+      });
   }
 
   // verify the token
@@ -34,7 +36,9 @@ try {
   next()
 
 } catch (error) {
-  throw new Error("Error"+error.message);
+  res.status(400).json({
+    message:'Invalid Token or Token not found'
+  })
   
 }
 }

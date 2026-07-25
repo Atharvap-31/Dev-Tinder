@@ -53,7 +53,14 @@ const userSchema = new Schema({
       }
     }
   },
-  skills:[String]
+  skills:[String],
+  photoUrl:{
+    type:String
+  },
+  about:{
+    default:'I am a Default User',
+    type:String
+  }
 },{
   timestamps:true
 });
@@ -61,7 +68,7 @@ const userSchema = new Schema({
 // schema method to create jwt
 
 userSchema.methods.getJwt =  function(){
-const user  =this;
+const user = this;
 
 const token =  jwt.sign({_id:user._id},'Patiltab123',{expiresIn:'1d'})
 return token
