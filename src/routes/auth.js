@@ -3,7 +3,7 @@ const { validateSignUpApi } = require("../utils/validation");
 const bcrypt = require('bcrypt');
 const User = require("../models/users");
 const authRouter  = express.Router()
-const validator = require('validator')
+const validator = require('validator');
 
 authRouter.post('/signup',async(req,res) => {
   
@@ -68,6 +68,41 @@ authRouter.post('/logout',async (req,res) => {
     res.cookie('token', null 
     ).json({message :'User Logged out successfully'})
 
+})
+
+authRouter.post('/forgotPassword',async(req,res)=>{
+
+  try {
+    // check if the owner of the account who wants to reset password is valid or not
+    const {emailId,password} = req.body
+    const user = await User.findOne({emailId:emailId})
+    if(!user){
+      throw new Error("User not found");
+    }
+
+      // checking if password is strong enough
+      if(!validator.isStrongPassword(password)){
+        throw new Error("Password is not strong enough");
+      }
+
+      // storing the hash version
+      const hashPassword = await bcrypt.hash(password,10)
+      user.password = hashPassword;
+
+      // saving new password in db
+      await user.save()
+      res.status(200).json({
+        message:'Password reset successfully'
+      })
+
+
+  } catch (error) {
+    res.status(400).json({
+      message:'Password reset failed',
+      error:error.message
+    })
+  }
+  
 })
 
 module.exports = authRouter

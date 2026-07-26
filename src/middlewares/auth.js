@@ -31,7 +31,7 @@ try {
     throw new Error("User not founf");
     
   }
-  
+  // if user logged in successfully
   req.user = user;
   next()
 
